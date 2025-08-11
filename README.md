@@ -6,8 +6,10 @@ Single-binary CUDA benchmark for NVIDIA GPUs. Measures:
 - KV-like VRAM bandwidth (GB/s)
 - Training-style score + inference token/s estimates
 
+
+Here are your options for running this benchmark:
+
 ## Run from Docker Hub
-(recommended)
 Requires NVIDIA Container Toolkit.
 ```bash
 docker run --rm --gpus all -v "$(pwd)/logs:/logs" bonanc/gpu-ml-benchmark:latest
