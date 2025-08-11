@@ -1,6 +1,3 @@
-
-### Dockerfile
-```dockerfile
 FROM nvidia/cuda:12.9.0-devel-ubuntu22.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -16,4 +13,3 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-
