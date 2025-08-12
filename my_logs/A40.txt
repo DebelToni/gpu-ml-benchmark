@@ -1,0 +1,37 @@
+GPU: NVIDIA A40, CC 8.6, SMs 84, globalMem 47.7 GB
+
+Problem sizes: M=8192 N=8192 K=8192
+
+=== AI bench (FP16 + FP4 mix) ===
+
+Budgets: FP16 7.0s, FP4 7.0s, KV 6.0s
+
+FP16 TC GEMM: 107.68 TFLOPS (avg 10.21 ms)
+
+FP4 fused-dequant GEMM (eff): 14.80 TFLOPS (avg 74.28 ms)
+
+KV bandwidth: 554.7 GB/s (avg 54.55 ms)
+
+Anchors: C0=20.0 TFLOPS, M0=400 GB/s
+
+Pretest norms: compute=5.384, memory=1.387
+
+Selected FP4 fraction: 0.78
+
+Mixed GEMM throughput: 18.30 TFLOPS
+
+Dynamic weight p=0.294 (higher compute -> lower p -> memory weighs more)
+
+Overall score: 120.43
+
+=== Inference-oriented estimates (tokens/s) ===
+
+Using: d=4096, L=32, r=4, batch=1, KV=FP16
+
+Measured: mixed_GEMM=18.30 TFLOPS, BW=554.7 GB/s
+
+t= 512: FP16-weights 356.3 tok/s, FP4-weights 939.3 tok/s
+
+t=2048: FP16-weights 234.8 tok/s, FP4-weights 397.4 tok/s
+
+t=8192: FP16-weights 99.4 tok/s, FP4-weights 120.1 tok/s
