@@ -1,0 +1,37 @@
+GPU: NVIDIA RTX A5000, CC 8.6, SMs 64, globalMem 25.3 GB
+
+Problem sizes: M=8192 N=8192 K=8192
+
+=== AI bench (FP16 + FP4 mix) ===
+
+Budgets: FP16 7.0s, FP4 7.0s, KV 6.0s
+
+FP16 TC GEMM: 89.66 TFLOPS (avg 12.26 ms)
+
+FP4 fused-dequant GEMM (eff): 10.74 TFLOPS (avg 102.33 ms)
+
+KV bandwidth: 718.6 GB/s (avg 21.89 ms)
+
+Anchors: C0=20.0 TFLOPS, M0=400 GB/s
+
+Pretest norms: compute=4.483, memory=1.796
+
+Selected FP4 fraction: 0.75
+
+Mixed GEMM throughput: 13.78 TFLOPS
+
+Dynamic weight p=0.309 (higher compute -> lower p -> memory weighs more)
+
+Overall score: 119.96
+
+=== Inference-oriented estimates (tokens/s) ===
+
+Using: d=4096, L=32, r=4, batch=1, KV=FP16
+
+Measured: mixed_GEMM=13.78 TFLOPS, BW=718.6 GB/s
+
+t= 512: FP16-weights 461.5 tok/s, FP4-weights 1047.5 tok/s
+
+t=2048: FP16-weights 304.2 tok/s, FP4-weights 514.8 tok/s
+
+t=8192: FP16-weights 128.7 tok/s, FP4-weights 155.6 tok/s
