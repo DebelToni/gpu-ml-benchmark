@@ -1,0 +1,22 @@
+GPU: NVIDIA GeForce RTX 3060, CC 8.6, SMs 28, globalMem 12.9 GB
+Problem sizes: M=8192 N=8192 K=8192
+
+=== AI bench (FP16 + FP4 mix) ===
+Budgets: FP16 7.0s, FP4 7.0s, KV 6.0s
+FP16 TC GEMM: 22.30 TFLOPS (avg 49.30 ms)
+FP4 fused-dequant GEMM (eff): 4.58 TFLOPS (avg 240.03 ms)
+KV bandwidth: 274.1 GB/s (avg 25.85 ms)
+Anchors: C0=20.0 TFLOPS, M0=400 GB/s
+Pretest norms: compute=1.115, memory=0.685
+Selected FP4 fraction: 0.72
+Mixed GEMM throughput: 5.91 TFLOPS
+Dynamic weight p=0.484 (higher compute -> lower p -> memory weighs more)
+Overall score: 41.84
+
+
+=== Inference-oriented estimates (tokens/s) ===
+Using: d=4096, L=32, r=4, batch=1, KV=FP16
+Measured: mixed_GEMM=5.91 TFLOPS, BW=274.1 GB/s
+t= 512: FP16-weights 176.1 tok/s, FP4-weights 449.4 tok/s
+t=2048: FP16-weights 116.0 tok/s, FP4-weights 196.4 tok/s
+t=8192: FP16-weights 49.1 tok/s, FP4-weights 59.4 tok/s
