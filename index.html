@@ -1,360 +1,405 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <title>AI Bench — GPU Results</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <style>
-    html, body { background:#fff; color:#0a0a0a }
-    .card { border:1px solid #e5e7eb; border-radius:16px }
-    .mono { font-variant-numeric: tabular-nums }
-    .toggle-btn { padding:0.6rem 1rem; border:1px solid #d1d5db; border-radius:0.75rem; font-weight:500; }
-    .toggle-btn.active { border-color:#111827; background:#111827; color:#fff; }
-    .legend-dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:middle }
-  </style>
+	<meta charset="utf-8" />
+	<title>AI Bench — GPU Results</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+	<style>
+		html,
+		body {
+			background: #fff;
+			color: #0a0a0a
+		}
+
+		.card {
+			border: 1px solid #e5e7eb;
+			border-radius: 16px
+		}
+
+		.mono {
+			font-variant-numeric: tabular-nums
+		}
+
+		.toggle-btn {
+			padding: 0.6rem 1rem;
+			border: 1px solid #d1d5db;
+			border-radius: 0.75rem;
+			font-weight: 500;
+		}
+
+		.toggle-btn.active {
+			border-color: #111827;
+			background: #111827;
+			color: #fff;
+		}
+
+		.legend-dot {
+			display: inline-block;
+			width: 10px;
+			height: 10px;
+			border-radius: 3px;
+			margin-right: 6px;
+			vertical-align: middle
+		}
+	</style>
 </head>
+
 <body class="antialiased">
-  <main class="mx-auto max-w-6xl px-4 py-8 space-y-8">
-    <header class="space-y-2">
-      <h1 class="text-2xl font-semibold tracking-tight">AI Bench — GPU Leaderboard</h1>
-    </header>
+	<main class="mx-auto max-w-6xl px-4 py-8 space-y-8">
+		<header class="space-y-2">
+			<h1 class="text-2xl font-semibold tracking-tight">AI Bench — GPU Leaderboard</h1>
+		</header>
 
-    <section class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-      <div class="card p-4 flex items-center gap-3">
-        <input id="fileInput" type="file" accept=".txt" multiple class="hidden">
-        <button id="pickFiles" class="px-3 py-2 rounded-xl border border-neutral-300 text-sm hover:bg-neutral-50 cursor-pointer">Upload .txt results</button>
-        <span class="text-xs text-neutral-600">Local runs</span>
-      </div>
+		<section class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+			<label class="card p-4 flex items-center gap-3">
+				<!-- <input id="fileInput" type="file" accept=".txt" multiple class="hidden"> -->
+				<!-- <button id="pickFiles" class="px-3 py-2 rounded-xl border border-neutral-300 text-sm">Upload .txt -->
+				<!-- 	results</button> -->
+				<input id="fileInput" type="file" accept=".txt" multiple class="sr-only" tabindex="-1"
+					aria-hidden="true">
+				<button id="pickFiles"
+					class="inline-flex items-center px-3 py-2 rounded-xl border border-neutral-300 text-sm leading-none">
+					Upload .txt results
+				</button>
+				<span class="text-xs text-neutral-600">Local runs</span>
+			</label>
 
-      <label class="card p-4 flex items-center gap-3">
-        <input id="search" type="text" placeholder="Search GPU (e.g. 4090, 3060, A100)" class="w-full outline-none text-sm">
-      </label>
+			<label class="card p-4 flex items-center gap-3">
+				<input id="search" type="text" placeholder="Search GPU (e.g. 4090, 3060, A100)"
+					class="w-full outline-none text-sm">
+			</label>
 
-      <div class="card p-4 grid grid-cols-2 gap-3 items-center">
-        <label class="text-xs text-neutral-600">Top-N (charts)</label>
-        <select id="topn" class="text-sm border border-neutral-300 rounded-lg px-2 py-1">
-          <option value="10">Top 10</option>
-          <option value="25">Top 25</option>
-          <option value="10000" selected>All</option>
-        </select>
-      </div>
-    </section>
+			<div class="card p-4 grid grid-cols-2 gap-3 items-center">
+				<label class="text-xs text-neutral-600">Top-N (charts)</label>
+				<select id="topn" class="text-sm border border-neutral-300 rounded-lg px-2 py-1">
+					<option value="10">Top 10</option>
+					<option value="25">Top 25</option>
+					<option value="10000" selected>All</option>
+				</select>
+			</div>
+		</section>
 
-    <section class="space-y-3">
-      <div class="flex items-baseline justify-between">
-        <h2 class="text-lg font-medium">Ranking</h2>
-        <span class="text-xs text-neutral-500" id="countBadge">0 GPUs</span>
-      </div>
-      <div class="card p-0">
-        <div class="max-h-[60vh] overflow-auto">
-          <table class="w-full text-sm">
-            <thead class="sticky top-0 bg-white">
-              <tr class="text-left border-b">
-                <th class="px-3 py-2">GPU</th>
-                <th class="px-3 py-2">CC</th>
-                <th class="px-3 py-2">SMs</th>
-                <th class="px-3 py-2">Mem</th>
-                <th class="px-3 py-2">FP16 TFLOPS</th>
-                <th class="px-3 py-2">Mixed TFLOPS</th>
-                <th class="px-3 py-2">KV GB/s</th>
-                <th class="px-3 py-2">Overall</th>
-              </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+		<section class="space-y-3">
+			<div class="flex items-baseline justify-between">
+				<h2 class="text-lg font-medium">Ranking</h2>
+				<span class="text-xs text-neutral-500" id="countBadge">0 GPUs</span>
+			</div>
+			<div class="card p-0">
+				<div class="max-h-[60vh] overflow-auto">
+					<table class="w-full text-sm">
+						<thead class="sticky top-0 bg-white">
+							<tr class="text-left border-b">
+								<th class="px-3 py-2">GPU</th>
+								<th class="px-3 py-2">CC</th>
+								<th class="px-3 py-2">SMs</th>
+								<th class="px-3 py-2">Mem</th>
+								<th class="px-3 py-2">FP16 TFLOPS</th>
+								<th class="px-3 py-2">Mixed TFLOPS</th>
+								<th class="px-3 py-2">KV GB/s</th>
+								<th class="px-3 py-2">Overall</th>
+							</tr>
+						</thead>
+						<tbody id="tbody"></tbody>
+					</table>
+				</div>
+			</div>
+		</section>
 
-    <section class="grid gap-6">
+		<section class="grid gap-6">
 
-      <div class="card p-4 space-y-3">
-        <div class="flex flex-wrap items-center gap-3">
-          <h3 class="font-medium mr-2">Tokens/s (Top)</h3>
-          <div class="flex gap-2">
-            <button class="toggle-btn active" data-metric="ts_fp16_512">FP16 at t=512</button>
-            <button class="toggle-btn" data-metric="ts_fp4_512">FP4 at t=512</button>
-            <button class="toggle-btn" data-metric="ts_fp4_8192">FP4 at t=8192</button>
-          </div>
-          <span id="tokensSubtitle" class="ml-auto text-xs text-neutral-500"></span>
-        </div>
-        <div class="h-[500px]"><canvas id="tokensChart"></canvas></div>
-      </div>
+			<div class="card p-4 space-y-3">
+				<div class="flex flex-wrap items-center gap-3">
+					<h3 class="font-medium mr-2">Tokens/s (Top)</h3>
+					<div class="flex gap-2">
+						<button class="toggle-btn active" data-metric="ts_fp16_512">FP16 at t=512</button>
+						<button class="toggle-btn" data-metric="ts_fp4_512">FP4 at t=512</button>
+						<button class="toggle-btn" data-metric="ts_fp4_8192">FP4 at t=8192</button>
+					</div>
+					<span id="tokensSubtitle" class="ml-auto text-xs text-neutral-500"></span>
+				</div>
+				<div class="h-[500px]"><canvas id="tokensChart"></canvas></div>
+			</div>
 
-      <div class="card p-4 space-y-2">
-        <div class="flex items-center">
-          <h3 class="font-medium">KV bandwidth (GB/s)</h3>
-          <span id="kvSubtitle" class="ml-auto text-xs text-neutral-500"></span>
-        </div>
-        <div class="h-[420px]"><canvas id="kvChart"></canvas></div>
-      </div>
+			<div class="card p-4 space-y-2">
+				<div class="flex items-center">
+					<h3 class="font-medium">KV bandwidth (GB/s)</h3>
+					<span id="kvSubtitle" class="ml-auto text-xs text-neutral-500"></span>
+				</div>
+				<div class="h-[420px]"><canvas id="kvChart"></canvas></div>
+			</div>
 
-      <div class="card p-4 space-y-2">
-        <div class="flex items-center">
-          <h3 class="font-medium">Mixed GEMM throughput (TFLOPS)</h3>
-          <span id="mixedSubtitle" class="ml-auto text-xs text-neutral-500"></span>
-        </div>
-        <div class="h-[420px]"><canvas id="mixedChart"></canvas></div>
-      </div>
-    </section>
+			<div class="card p-4 space-y-2">
+				<div class="flex items-center">
+					<h3 class="font-medium">Mixed GEMM throughput (TFLOPS)</h3>
+					<span id="mixedSubtitle" class="ml-auto text-xs text-neutral-500"></span>
+				</div>
+				<div class="h-[420px]"><canvas id="mixedChart"></canvas></div>
+			</div>
+		</section>
 
-    <section class="text-xs text-neutral-500">
-      <a href="https://github.com/DebelToni/gpu-ml-benchmark" class="text-neutral-500 hover:underline" target="_blank" rel="noopener">https://github.com/DebelToni/gpu-ml-benchmark</a><br>
-    </section>
+		<section class="text-xs text-neutral-500">
+			<a href="https://github.com/DebelToni/gpu-ml-benchmark" class="text-neutral-500 hover:underline"
+				target="_blank" rel="noopener">https://github.com/DebelToni/gpu-ml-benchmark</a><br>
+		</section>
 
-  <script>
+		<script>
 
-    const CONFIG = {
-      preferGithubAPI: true,
-      owner: null,     
-      repo: null,      
-      branch: "main"   
-    };
+			const CONFIG = {
+				preferGithubAPI: true,
+				owner: null,
+				repo: null,
+				branch: "main"
+			};
 
-    let DATA = [];
-    let tokensChart, kvChart, mixedChart;
-    let currentTokensMetric = 'ts_fp16_512';
-    const LOADED_HASHES = new Set();
-    const LOADED_SOURCES = new Set();
+			let DATA = [];
+			let tokensChart, kvChart, mixedChart;
+			let currentTokensMetric = 'ts_fp16_512';
+			const LOADED_HASHES = new Set();
+			const LOADED_SOURCES = new Set();
 
-    function djb2Hash(str){ let h=5381; for(let i=0;i<str.length;i++) h=((h<<5)+h)+str.charCodeAt(i); return (h>>>0).toString(16); }
-    function formatNum(x,d=2){ return (x==null||Number.isNaN(x))?"—":(+x).toFixed(d); }
-    function filteredData(){ const q=document.getElementById('search').value.trim().toLowerCase(); return DATA.filter(r=>r.gpu.toLowerCase().includes(q)); }
-    function sortDesc(arr,key){ return [...arr].sort((a,b)=>((b[key]??-1)-(a[key]??-1))); }
-    function topN(arr,n){ return arr.slice(0,n); }
-    function colorForRun(r){ if(r.cloud) return "rgba(59,130,246,0.7)"; if(r.uploaded) return "rgba(251,146,60,0.6)"; return "rgba(0,0,0,0.15)"; }
+			function djb2Hash(str) {let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i); return (h >>> 0).toString(16);}
+			function formatNum(x, d = 2) {return (x == null || Number.isNaN(x)) ? "—" : (+x).toFixed(d);}
+			function filteredData() {const q = document.getElementById('search').value.trim().toLowerCase(); return DATA.filter(r => r.gpu.toLowerCase().includes(q));}
+			function sortDesc(arr, key) {return [...arr].sort((a, b) => ((b[key] ?? -1) - (a[key] ?? -1)));}
+			function topN(arr, n) {return arr.slice(0, n);}
+			function colorForRun(r) {if (r.cloud) return "rgba(59,130,246,0.7)"; if (r.uploaded) return "rgba(251,146,60,0.6)"; return "rgba(0,0,0,0.15)";}
 
-    function inferGhProject(){
-      let owner = CONFIG.owner, repo = CONFIG.repo;
-      if (!owner && location.hostname.endsWith("github.io")) owner = location.hostname.split(".")[0];
-      if (!repo) {
-        const seg = location.pathname.replace(/^\/+/,"").split("/")[0];
-        repo = seg || (owner ? owner + ".github.io" : null);
-      }
-      return { owner, repo, branch: CONFIG.branch };
-    }
+			function inferGhProject() {
+				let owner = CONFIG.owner, repo = CONFIG.repo;
+				if (!owner && location.hostname.endsWith("github.io")) owner = location.hostname.split(".")[0];
+				if (!repo) {
+					const seg = location.pathname.replace(/^\/+/, "").split("/")[0];
+					repo = seg || (owner ? owner + ".github.io" : null);
+				}
+				return {owner, repo, branch: CONFIG.branch};
+			}
 
-    function parseBenchText(text, sourceName=""){
-      const get = (re) => { const m=text.match(re); return m?m.slice(1):null; };
-      const gpuLine = get(/GPU:\s*(.+?),\s*CC\s*([0-9.]+),\s*SMs\s*(\d+),\s*globalMem\s*([\d.]+)\s*GB/i);
-      if(!gpuLine) return null;
-      const [gpu,cc,sms,mem]=gpuLine;
-      const fp16=get(/FP16 TC GEMM:\s*([\d.]+)\s*TFLOPS/i);
-      const fp4 =get(/FP4 fused-dequant GEMM \(eff\):\s*([\d.]+)\s*TFLOPS/i);
-      const kvbw=get(/KV bandwidth:\s*([\d.]+)\s*GB\/s/i);
-      const mixed=get(/Mixed GEMM throughput:\s*([\d.]+)\s*TFLOPS/i);
-      const overall=get(/Overall score:\s*([\d.]+)/i);
+			function parseBenchText(text, sourceName = "") {
+				const get = (re) => {const m = text.match(re); return m ? m.slice(1) : null;};
+				// const gpuLine = get(/GPU:\s*(.+?),\s*CC\s*([0-9.]+),\s*SMs\s*(\d+),\s*globalMem\s*([\d.]+)\s*GB/i);
+				const gpuLine = get(/GPU:\s*([^\n,]+).*?CC\s*([0-9.]+).*?SMs?\s*(\d+).*?(?:global(?:\s*mem(?:ory)?)?|globalMem)\s*([\d.]+)\s*GB/i) || get(/GPU:\s*([^\n,]+).*?(?:CC|Compute Capability)\s*[:=]?\s*([0-9.]+).*?SMs?\s*[:=]?\s*(\d+).*?(?:global(?:\s*mem(?:ory)?)?|VRAM|memory)\s*[:=]?\s*([\d.]+)\s*GB/i);
+				if (!gpuLine) return null;
+				if (!gpuLine) return null;
+				const [gpu, cc, sms, mem] = gpuLine;
+				const fp16 = get(/FP16 TC GEMM:\s*([\d.]+)\s*TFLOPS/i);
+				const fp4 = get(/FP4 fused-dequant GEMM \(eff\):\s*([\d.]+)\s*TFLOPS/i);
+				const kvbw = get(/KV bandwidth:\s*([\d.]+)\s*GB\/s/i);
+				const mixed = get(/Mixed GEMM throughput:\s*([\d.]+)\s*TFLOPS/i);
+				const overall = get(/Overall score:\s*([\d.]+)/i);
 
-      const tokLines=[...text.matchAll(/t=\s*(\d+):\s*FP16-weights\s*([\d.]+)\s*tok\/s,\s*FP4-weights\s*([\d.]+)\s*tok\/s/gi)]
-        .map(m=>({t:+m[1], fp16:+m[2], fp4:+m[3]}))
-        .sort((a,b)=>a.t-b.t);
+				const tokLines = [...text.matchAll(/t=\s*(\d+):\s*FP16-weights\s*([\d.]+)\s*tok\/s,\s*FP4-weights\s*([\d.]+)\s*tok\/s/gi)]
+					.map(m => ({t: +m[1], fp16: +m[2], fp4: +m[3]}))
+					.sort((a, b) => a.t - b.t);
 
-      return {
-        id: sourceName || gpu+"@"+Date.now(),
-        source: sourceName,
-        gpu: gpu.trim(),
-        cc:+cc, sms:+sms, mem_gb:+mem,
-        fp16_tflops: fp16?+fp16[0]:null,
-        fp4_tflops:  fp4 ?+fp4[0] :null,
-        kv_bw_gbps:  kvbw?+kvbw[0]:null,
-        mixed_tflops: mixed?+mixed[0]:null,
-        overall: overall?+overall[0]:null,
-        tokens_s: tokLines,
-        uploaded:false,
-        cloud:false
-      };
-    }
+				return {
+					id: sourceName || gpu + "@" + Date.now(),
+					source: sourceName,
+					gpu: gpu.trim(),
+					cc: +cc, sms: +sms, mem_gb: +mem,
+					fp16_tflops: fp16 ? +fp16[0] : null,
+					fp4_tflops: fp4 ? +fp4[0] : null,
+					kv_bw_gbps: kvbw ? +kvbw[0] : null,
+					mixed_tflops: mixed ? +mixed[0] : null,
+					overall: overall ? +overall[0] : null,
+					tokens_s: tokLines,
+					uploaded: false,
+					cloud: false
+				};
+			}
 
-    function refreshTable(){
-      const tbody=document.getElementById('tbody');
-      tbody.innerHTML="";
-      const rows=sortDesc(filteredData(),'overall');
-      document.getElementById('countBadge').textContent=`${rows.length} GPU${rows.length===1?"":"s"}`;
-      for(const r of rows){
-        const tr=document.createElement('tr');
-        const rowColor = r.cloud ? " bg-blue-50" : (r.uploaded ? " bg-orange-50" : "");
-        tr.className="border-b hover:bg-neutral-50"+rowColor;
-        tr.innerHTML=`
+			function refreshTable() {
+				const tbody = document.getElementById('tbody');
+				tbody.innerHTML = "";
+				const rows = sortDesc(filteredData(), 'overall');
+				document.getElementById('countBadge').textContent = `${rows.length} GPU${rows.length === 1 ? "" : "s"}`;
+				for (const r of rows) {
+					const tr = document.createElement('tr');
+					const rowColor = r.cloud ? " bg-blue-50" : (r.uploaded ? " bg-orange-50" : "");
+					tr.className = "border-b hover:bg-neutral-50" + rowColor;
+					tr.innerHTML = `
           <td class="px-3 py-2">${r.gpu}</td>
-          <td class="px-3 py-2 mono">${formatNum(r.cc,1)}</td>
+          <td class="px-3 py-2 mono">${formatNum(r.cc, 1)}</td>
           <td class="px-3 py-2 mono">${r.sms ?? "—"}</td>
-          <td class="px-3 py-2 mono">${formatNum(r.mem_gb,1)} GB</td>
+          <td class="px-3 py-2 mono">${formatNum(r.mem_gb, 1)} GB</td>
           <td class="px-3 py-2 mono">${formatNum(r.fp16_tflops)}</td>
           <td class="px-3 py-2 mono">${formatNum(r.mixed_tflops)}</td>
           <td class="px-3 py-2 mono">${formatNum(r.kv_bw_gbps)}</td>
           <td class="px-3 py-2 mono font-medium">${formatNum(r.overall)}</td>
         `;
-        tbody.appendChild(tr);
-      }
-    }
+					tbody.appendChild(tr);
+				}
+			}
 
-    function getTokensMetricValue(run, metricKey){
-      const pick=(t,which)=>{ const row=run.tokens_s?.find(x=>x.t===t); if(!row) return null; return which==='fp16'?row.fp16:row.fp4; };
-      switch(metricKey){
-        case 'ts_fp16_512':  return pick(512,'fp16');
-        case 'ts_fp4_512':   return pick(512,'fp4');
-        case 'ts_fp4_8192':  return pick(8192,'fp4');
-        default: return null;
-      }
-    }
-    function buildBarDataFromMetric(metricKey, accessor, topn){
-      const rows = filteredData().map(r=>({r,v:accessor(r,metricKey)}))
-        .filter(x=>x.v!=null && !Number.isNaN(x.v))
-        .sort((a,b)=>b.v-a.v);
-      const sliced = rows.slice(0, topn);
-      return {
-        labels: sliced.map(x=>x.r.gpu),
-        values: sliced.map(x=>x.v),
-        colors: sliced.map(x=>colorForRun(x.r))
-      };
-    }
-    function buildSimpleBarData(key, topn){
-      const rows = filteredData().filter(r=>r[key]!=null)
-        .sort((a,b)=> (b[key]??-1)-(a[key]??-1));
-      const sliced = rows.slice(0, topn);
-      return {
-        labels: sliced.map(r=>r.gpu),
-        values: sliced.map(r=>r[key]),
-        colors: sliced.map(r=>colorForRun(r))
-      };
-    }
-    function createOrUpdateBar(chartRef, canvasId, labels, values, label, subtitleId, colors){
-      const ctx=document.getElementById(canvasId).getContext('2d');
-      if(chartRef?.destroy) chartRef.destroy();
-      document.getElementById(subtitleId).textContent = labels.length?`${label} • ${labels.length} items`:"No data";
-      return new Chart(ctx,{
-        type:'bar',
-        data:{ labels, datasets:[{ label, data:values, backgroundColor:colors, categoryPercentage:0.72, barPercentage:0.72, maxBarThickness:28 }]},
-        options:{ animation:false, indexAxis:'x', responsive:true, maintainAspectRatio:false,
-          plugins:{ legend:{display:false}, tooltip:{mode:'nearest', intersect:false}},
-          scales:{ x:{ grid:{drawOnChartArea:false}}, y:{ beginAtZero:true}}
-        }
-      });
-    }
-    function refreshTokensChart(){
-      const n=+document.getElementById('topn').value;
-      const titles={ ts_fp16_512:'Tokens/s FP16 at t=512', ts_fp4_512:'Tokens/s FP4 at t=512', ts_fp4_8192:'Tokens/s FP4 at t=8192' };
-      const {labels,values,colors}=buildBarDataFromMetric(currentTokensMetric,(r,k)=>getTokensMetricValue(r,k),n);
-      tokensChart=createOrUpdateBar(tokensChart,'tokensChart',labels,values,titles[currentTokensMetric],'tokensSubtitle',colors);
-    }
-    function refreshKvChart(){
-      const n=+document.getElementById('topn').value;
-      const {labels,values,colors}=buildSimpleBarData('kv_bw_gbps',n);
-      kvChart=createOrUpdateBar(kvChart,'kvChart',labels,values,'KV bandwidth (GB/s)','kvSubtitle',colors);
-    }
-    function refreshMixedChart(){
-      const n=+document.getElementById('topn').value;
-      const {labels,values,colors}=buildSimpleBarData('mixed_tflops',n);
-      mixedChart=createOrUpdateBar(mixedChart,'mixedChart',labels,values,'Mixed GEMM TFLOPS','mixedSubtitle',colors);
-    }
-    function refreshAll(){ refreshTable(); refreshTokensChart(); refreshKvChart(); refreshMixedChart(); }
+			function getTokensMetricValue(run, metricKey) {
+				const pick = (t, which) => {const row = run.tokens_s?.find(x => x.t === t); if (!row) return null; return which === 'fp16' ? row.fp16 : row.fp4;};
+				switch (metricKey) {
+					case 'ts_fp16_512': return pick(512, 'fp16');
+					case 'ts_fp4_512': return pick(512, 'fp4');
+					case 'ts_fp4_8192': return pick(8192, 'fp4');
+					default: return null;
+				}
+			}
+			function buildBarDataFromMetric(metricKey, accessor, topn) {
+				const rows = filteredData().map(r => ({r, v: accessor(r, metricKey)}))
+					.filter(x => x.v != null && !Number.isNaN(x.v))
+					.sort((a, b) => b.v - a.v);
+				const sliced = rows.slice(0, topn);
+				return {
+					labels: sliced.map(x => x.r.gpu),
+					values: sliced.map(x => x.v),
+					colors: sliced.map(x => colorForRun(x.r))
+				};
+			}
+			function buildSimpleBarData(key, topn) {
+				const rows = filteredData().filter(r => r[key] != null)
+					.sort((a, b) => (b[key] ?? -1) - (a[key] ?? -1));
+				const sliced = rows.slice(0, topn);
+				return {
+					labels: sliced.map(r => r.gpu),
+					values: sliced.map(r => r[key]),
+					colors: sliced.map(r => colorForRun(r))
+				};
+			}
+			function createOrUpdateBar(chartRef, canvasId, labels, values, label, subtitleId, colors) {
+				const ctx = document.getElementById(canvasId).getContext('2d');
+				if (chartRef?.destroy) chartRef.destroy();
+				document.getElementById(subtitleId).textContent = labels.length ? `${label} • ${labels.length} items` : "No data";
+				return new Chart(ctx, {
+					type: 'bar',
+					data: {labels, datasets: [{label, data: values, backgroundColor: colors, categoryPercentage: 0.72, barPercentage: 0.72, maxBarThickness: 28}]},
+					options: {
+						animation: false, indexAxis: 'x', responsive: true, maintainAspectRatio: false,
+						plugins: {legend: {display: false}, tooltip: {mode: 'nearest', intersect: false}},
+						scales: {x: {grid: {drawOnChartArea: false}}, y: {beginAtZero: true}}
+					}
+				});
+			}
+			function refreshTokensChart() {
+				const n = +document.getElementById('topn').value;
+				const titles = {ts_fp16_512: 'Tokens/s FP16 at t=512', ts_fp4_512: 'Tokens/s FP4 at t=512', ts_fp4_8192: 'Tokens/s FP4 at t=8192'};
+				const {labels, values, colors} = buildBarDataFromMetric(currentTokensMetric, (r, k) => getTokensMetricValue(r, k), n);
+				tokensChart = createOrUpdateBar(tokensChart, 'tokensChart', labels, values, titles[currentTokensMetric], 'tokensSubtitle', colors);
+			}
+			function refreshKvChart() {
+				const n = +document.getElementById('topn').value;
+				const {labels, values, colors} = buildSimpleBarData('kv_bw_gbps', n);
+				kvChart = createOrUpdateBar(kvChart, 'kvChart', labels, values, 'KV bandwidth (GB/s)', 'kvSubtitle', colors);
+			}
+			function refreshMixedChart() {
+				const n = +document.getElementById('topn').value;
+				const {labels, values, colors} = buildSimpleBarData('mixed_tflops', n);
+				mixedChart = createOrUpdateBar(mixedChart, 'mixedChart', labels, values, 'Mixed GEMM TFLOPS', 'mixedSubtitle', colors);
+			}
+			function refreshAll() {refreshTable(); refreshTokensChart(); refreshKvChart(); refreshMixedChart();}
 
-    async function listGithubTxtFiles(owner, repo, branch){
-      const api = `https://api.github.com/repos/${owner}/${repo}/contents/my_logs?ref=${branch}`;
-      const r = await fetch(api, { cache:'no-store' });
-      if (!r.ok) throw new Error('gh api list failed');
-      const arr = await r.json();
-      return arr.filter(it => it && it.type === 'file' && /\.txt$/i.test(it.name))
-                .map(it => ({ name: it.name, url: it.download_url }));
-    }
+			async function listGithubTxtFiles(owner, repo, branch) {
+				const dirs = ['my_logs', 'docs/my_logs'];
+				for (const dir of dirs) {
+					const api = `https://api.github.com/repos/${owner}/${repo}/contents/${dir}?ref=${encodeURIComponent(branch)}`;
+					const r = await fetch(api, {
+						cache: 'no-store',
+						headers: {'Accept': 'application/vnd.github+json'}
+					});
+					if (r.ok) {
+						const arr = await r.json();
+						return arr
+							.filter(it => it?.type === 'file' && /\.txt$/i.test(it.name))
+							.map(it => ({
+								name: it.name,
+								url: it.download_url || null
+							}))
+							.filter(x => x.url);
+					}
+				}
+				throw new Error('gh api list failed');
+			}
+			async function loadMyLogs() {
+				let {owner, repo, branch} = inferGhProject();
+				const useGh = CONFIG.preferGithubAPI && owner && repo && branch;
+				let entries = [];
+				if (useGh) {
 
-    async function loadMyLogs(){
-      let { owner, repo, branch } = inferGhProject();
-      const useGh = CONFIG.preferGithubAPI && owner && repo && branch;
-      let entries = [];
-      if (useGh){
+					try {
+						entries = await listGithubTxtFiles(owner, repo, branch);
+					} catch {
+						if (branch !== 'master') {
+							try {entries = await listGithubTxtFiles(owner, repo, 'master');} catch { }
+						}
+					}
+				}
 
-        try {
-          entries = await listGithubTxtFiles(owner, repo, branch);
-        } catch {
-          if (branch !== 'master') {
-            try { entries = await listGithubTxtFiles(owner, repo, 'master'); } catch {}
-          }
-        }
-      }
+				if (entries.length === 0) {
+					try {
+						const mf = await fetch(new URL('my_logs/index.json', location.href), {cache: 'no-store'});
+						if (mf.ok) {
+							const list = await mf.json();
+							entries = (list || []).map(x => typeof x === 'string'
+								? {name: x, url: new URL('my_logs/' + x, location.href).href}
+								: {name: x.name || x.path || 'log.txt', url: x.url || new URL('my_logs/' + (x.path || x.name), location.href).href});
+						}
+					} catch { }
+				}
 
-      if (entries.length === 0) {
-        try {
-          const mf = await fetch(new URL('my_logs/index.json', location.href), { cache:'no-store' });
-          if (mf.ok) {
-            const list = await mf.json();
-            entries = (list || []).map(x => typeof x === 'string'
-              ? { name: x, url: new URL('my_logs/' + x, location.href).href }
-              : { name: x.name || x.path || 'log.txt', url: x.url || new URL('my_logs/' + (x.path || x.name), location.href).href });
-          }
-        } catch {}
-        
-          const knownFiles = ['3060.txt', '3090.txt', '4090.txt', 'A100.txt', 'H100_NVL.txt']; 
-          for (const fileName of knownFiles) {
-            try {
-              const testUrl = new URL('my_logs/' + fileName, location.href).href;
-              const testResp = await fetch(testUrl, { method: 'HEAD' });
-              if (testResp.ok) {
-                entries.push({ name: fileName, url: testUrl });
-              }
-            } catch {}
-          }
-        }
-      }
+				const tasks = entries
+					.filter(e => e && e.url && !LOADED_SOURCES.has(e.url))
+					.map(async e => {
+						try {
+							const resp = await fetch(e.url, {cache: 'no-store'});
+							if (!resp.ok) return;
+							const text = await resp.text();
+							const hash = djb2Hash(text);
+							if (LOADED_HASHES.has(hash)) return;
+							const parsed = parseBenchText(text, e.name);
+							if (!parsed) return;
+							parsed.cloud = true;
+							LOADED_HASHES.add(hash);
+							LOADED_SOURCES.add(e.url);
+							DATA.push(parsed);
+						} catch { }
+					});
+				await Promise.all(tasks);
+				refreshAll();
+			}
 
-      const tasks = entries
-        .filter(e => e && e.url && !LOADED_SOURCES.has(e.url))
-        .map(async e => {
-          try {
-            const resp = await fetch(e.url, { cache:'no-store' });
-            if (!resp.ok) return;
-            const text = await resp.text();
-            const hash = djb2Hash(text);
-            if (LOADED_HASHES.has(hash)) return;
-            const parsed = parseBenchText(text, e.name);
-            if (!parsed) return;
-            parsed.cloud = true;
-            LOADED_HASHES.add(hash);
-            LOADED_SOURCES.add(e.url);
-            DATA.push(parsed);
-          } catch {}
-        });
-      await Promise.all(tasks);
-      refreshAll();
-    }
+			document.getElementById('pickFiles').addEventListener('click', () => {
+				document.getElementById('fileInput').click();
+			});
+			document.getElementById('fileInput').addEventListener('change', async (e) => {
+				const files = Array.from(e.target.files || []);
+				for (const f of files) {
+					const text = await f.text();
+					const hash = djb2Hash(text);
+					if (LOADED_HASHES.has(hash)) continue;
+					const parsed = parseBenchText(text, f.name);
+					if (!parsed) continue;
+					parsed.uploaded = true;
+					LOADED_HASHES.add(hash);
+					LOADED_SOURCES.add(f.name);
+					DATA.push(parsed);
+				}
+				refreshAll();
+				e.target.value = "";
+			});
 
-    document.getElementById('pickFiles').addEventListener('click', () => {
-      document.getElementById('fileInput').click();
-    });
-    document.getElementById('fileInput').addEventListener('change', async (e) => {
-      const files = Array.from(e.target.files || []);
-      for (const f of files) {
-        const text = await f.text();
-        const hash = djb2Hash(text);
-        if (LOADED_HASHES.has(hash)) continue;
-        const parsed = parseBenchText(text, f.name);
-        if (!parsed) continue;
-        parsed.uploaded = true;
-        LOADED_HASHES.add(hash);
-        LOADED_SOURCES.add(f.name);
-        DATA.push(parsed);
-      }
-      refreshAll();
-      e.target.value = "";
-    });
+			document.getElementById('search').addEventListener('input', refreshAll);
+			document.getElementById('topn').addEventListener('change', refreshAll);
+			document.querySelectorAll('.toggle-btn').forEach(btn => {
+				btn.addEventListener('click', () => {
+					document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+					btn.classList.add('active');
+					currentTokensMetric = btn.getAttribute('data-metric');
+					refreshTokensChart();
+				});
+			});
 
-    document.getElementById('search').addEventListener('input', refreshAll);
-    document.getElementById('topn').addEventListener('change', refreshAll);
-    document.querySelectorAll('.toggle-btn').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        currentTokensMetric = btn.getAttribute('data-metric');
-        refreshTokensChart();
-      });
-    });
-
-    (async function init(){
-      await loadMyLogs();
-      refreshAll();
-    })();
-  </script>
+			(async function init() {
+				await loadMyLogs();
+				refreshAll();
+			})();
+		</script>
 </body>
+
 </html>
