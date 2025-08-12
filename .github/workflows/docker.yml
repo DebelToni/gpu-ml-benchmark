@@ -4,7 +4,6 @@ on:
   push:
     # branches: [ Code-toni ]
     branches: [ docker ]
-    tags: [ '*' ]
   workflow_dispatch:
 
 jobs:
