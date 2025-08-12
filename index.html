@@ -22,11 +22,11 @@
     </header>
 
     <section class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-      <label class="card p-4 flex items-center gap-3">
+      <div class="card p-4 flex items-center gap-3">
         <input id="fileInput" type="file" accept=".txt" multiple class="hidden">
-        <button id="pickFiles" class="px-3 py-2 rounded-xl border border-neutral-300 text-sm">Upload .txt results</button>
+        <button id="pickFiles" class="px-3 py-2 rounded-xl border border-neutral-300 text-sm hover:bg-neutral-50 cursor-pointer">Upload .txt results</button>
         <span class="text-xs text-neutral-600">Local runs</span>
-      </label>
+      </div>
 
       <label class="card p-4 flex items-center gap-3">
         <input id="search" type="text" placeholder="Search GPU (e.g. 4090, 3060, A100)" class="w-full outline-none text-sm">
@@ -252,7 +252,7 @@
     function refreshAll(){ refreshTable(); refreshTokensChart(); refreshKvChart(); refreshMixedChart(); }
 
     async function listGithubTxtFiles(owner, repo, branch){
-      const api = `https:
+      const api = `https://api.github.com/repos/${owner}/${repo}/contents/my_logs?ref=${branch}`;
       const r = await fetch(api, { cache:'no-store' });
       if (!r.ok) throw new Error('gh api list failed');
       const arr = await r.json();
@@ -285,6 +285,18 @@
               : { name: x.name || x.path || 'log.txt', url: x.url || new URL('my_logs/' + (x.path || x.name), location.href).href });
           }
         } catch {}
+        
+          const knownFiles = ['3060.txt', '3090.txt', '4090.txt', 'A100.txt', 'H100_NVL.txt']; 
+          for (const fileName of knownFiles) {
+            try {
+              const testUrl = new URL('my_logs/' + fileName, location.href).href;
+              const testResp = await fetch(testUrl, { method: 'HEAD' });
+              if (testResp.ok) {
+                entries.push({ name: fileName, url: testUrl });
+              }
+            } catch {}
+          }
+        }
       }
 
       const tasks = entries
