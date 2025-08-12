@@ -6,8 +6,9 @@ Single-binary CUDA benchmark for NVIDIA GPUs. Measures:
 - KV-like VRAM bandwidth (GB/s)
 - Training-style score + inference token/s estimates
 
-
-See results from popular GPUs and compare yours: [Leaderboard](https://DebelToni.github.io/gpu-ml-benchmark)
+<br>
+## See results from popular GPUs and compare yours: [Leaderboard](https://DebelToni.github.io/gpu-ml-benchmark)
+<br>
 
 
 Here are your options for running this benchmark:
