@@ -1,0 +1,37 @@
+GPU: NVIDIA RTX 4000 Ada Generation, CC 8.9, SMs 48, globalMem 21.0 GB
+
+Problem sizes: M=8192 N=8192 K=8192
+
+=== AI bench (FP16 + FP4 mix) ===
+
+Budgets: FP16 7.0s, FP4 7.0s, KV 6.0s
+
+FP16 TC GEMM: 70.12 TFLOPS (avg 15.68 ms)
+
+FP4 fused-dequant GEMM (eff): 11.35 TFLOPS (avg 96.91 ms)
+
+KV bandwidth: 334.2 GB/s (avg 38.80 ms)
+
+Anchors: C0=20.0 TFLOPS, M0=400 GB/s
+
+Pretest norms: compute=3.506, memory=0.836
+
+Selected FP4 fraction: 0.78
+
+Mixed GEMM throughput: 13.87 TFLOPS
+
+Dynamic weight p=0.333 (higher compute -> lower p -> memory weighs more)
+
+Overall score: 78.22
+
+=== Inference-oriented estimates (tokens/s) ===
+
+Using: d=4096, L=32, r=4, batch=1, KV=FP16
+
+Measured: mixed_GEMM=13.87 TFLOPS, BW=334.2 GB/s
+
+t= 512: FP16-weights 214.7 tok/s, FP4-weights 565.9 tok/s
+
+t=2048: FP16-weights 141.5 tok/s, FP4-weights 239.4 tok/s
+
+t=8192: FP16-weights 59.9 tok/s, FP4-weights 72.4 tok/s

@@ -1,0 +1,37 @@
+GPU: NVIDIA RTX 2000 Ada Generation, CC 8.9, SMs 22, globalMem 16.9 GB
+
+Problem sizes: M=8192 N=8192 K=8192
+
+=== AI bench (FP16 + FP4 mix) ===
+
+Budgets: FP16 7.0s, FP4 7.0s, KV 6.0s
+
+FP16 TC GEMM: 35.43 TFLOPS (avg 31.04 ms)
+
+FP4 fused-dequant GEMM (eff): 5.11 TFLOPS (avg 215.22 ms)
+
+KV bandwidth: 207.9 GB/s (avg 49.61 ms)
+
+Anchors: C0=20.0 TFLOPS, M0=400 GB/s
+
+Pretest norms: compute=1.771, memory=0.520
+
+Selected FP4 fraction: 0.77
+
+Mixed GEMM throughput: 6.36 TFLOPS
+
+Dynamic weight p=0.416 (higher compute -> lower p -> memory weighs more)
+
+Overall score: 41.11
+
+=== Inference-oriented estimates (tokens/s) ===
+
+Using: d=4096, L=32, r=4, batch=1, KV=FP16
+
+Measured: mixed_GEMM=6.36 TFLOPS, BW=207.9 GB/s
+
+t= 512: FP16-weights 133.6 tok/s, FP4-weights 352.1 tok/s
+
+t=2048: FP16-weights 88.0 tok/s, FP4-weights 149.0 tok/s
+
+t=8192: FP16-weights 37.2 tok/s, FP4-weights 45.0 tok/s
