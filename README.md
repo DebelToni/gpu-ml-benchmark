@@ -7,7 +7,7 @@ Single-binary CUDA benchmark for NVIDIA GPUs. Measures:
 - Training-style score + inference token/s estimates
 
 
-All the params for the benchmark are displayed and can be adusted to match your usecase best.
+See results from popular GPUs and compare yours: [Leaderboard](https://DebelToni.github.io/gpu-ml-benchmark)
 
 
 Here are your options for running this benchmark:
