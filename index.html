@@ -217,7 +217,7 @@
 				document.getElementById('countBadge').textContent = `${rows.length} GPU${rows.length === 1 ? "" : "s"}`;
 				for (const r of rows) {
 					const tr = document.createElement('tr');
-					const rowColor = r.cloud ? " bg-blue-50" : (r.uploaded ? " bg-orange-50" : "");
+					const rowColor = r.uploaded ? " bg-orange-50" : "";
 					tr.className = "border-b hover:bg-neutral-50" + rowColor;
 					tr.innerHTML = `
           <td class="px-3 py-2">${r.gpu}</td>
