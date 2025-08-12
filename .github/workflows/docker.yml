@@ -2,7 +2,8 @@ name: build-and-push
 
 on:
   push:
-    branches: [ Code-toni ]
+    # branches: [ Code-toni ]
+    branches: [ docker ]
     tags: [ '*' ]
   workflow_dispatch:
 
