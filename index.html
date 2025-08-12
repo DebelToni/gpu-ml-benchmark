@@ -44,6 +44,45 @@
 			margin-right: 6px;
 			vertical-align: middle
 		}
+	
+		/* Info popup */
+		@keyframes pop {
+			from { transform: scale(0.98); opacity: 0 }
+			to { transform: scale(1); opacity: 1 }
+		}
+
+	
+		/* Info popup */
+		@keyframes pop { from { transform: scale(0.98); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+		#infoFab {
+			position: fixed; top: 24px; left: 24px;
+			width: 56px; height: 56px; border-radius: 50%;
+			background: #fff; color: #000; border: 2px solid #000;
+			display: flex; align-items: center; justify-content: center;
+			box-shadow: 0 10px 20px rgba(0,0,0,.15);
+			cursor: pointer; transition: transform .12s ease, box-shadow .2s ease;
+		}
+		#infoFab:active { transform: scale(0.95); }
+		#infoFab:focus-visible { outline: 3px solid rgba(0,0,0,.5); outline-offset: 2px; }
+		#infoFab svg { width: 28px; height: 28px; }
+		#infoFab .stroke { stroke: #000; fill: none; }
+
+		#infoModal { position: fixed; inset: 0; z-index: 1000; display: none; }
+		#infoModal.show { display: block; }
+		#infoBackdrop { position: absolute; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(2px); }
+		#infoDialog {
+			position: relative; margin: 96px auto 0; max-width: 640px;
+			background: #fff; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,.2);
+			animation: pop .16s ease;
+		}
+		#infoContent { padding: 24px; }
+		#infoClose {
+			position: absolute; top: 10px; right: 12px;
+			background: transparent; border: none; color: #000;
+			font-size: 28px; line-height: 1; padding: 6px; cursor: pointer;
+		}
+		#infoClose:focus-visible { outline: 2px solid rgba(0,0,0,.5); outline-offset: 2px; }
+
 	</style>
 </head>
 
@@ -400,6 +439,56 @@
 				refreshAll();
 			})();
 		</script>
+
+
+	<!-- Info FAB and Modal -->
+	<button id="infoFab" aria-label="Show information" title="Info">
+		<svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+			<g class="stroke" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M8 14c0-1.657 1.343-3 3-3h2c1.657 0 3 1.343 3 3" />
+				<path d="M9 10a5 5 0 1 1 6 0" />
+				<path d="M10 17h4" />
+				<path d="M10.5 20h3" />
+			</g>
+		</svg>
+	</button>
+
+	<div id="infoModal" aria-hidden="true" role="dialog" aria-modal="true">
+		<div id="infoBackdrop"></div>
+		<div id="infoDialog">
+			<button id="infoClose" aria-label="Close">×</button>
+			<div id="infoContent">
+				<h>Info</h>
+				<br>
+				<br>
+				<p>The leaderboard results are manually collected by myself, testing different cards in cloud instances.</p>
+				<br>
+				<p>Due to driver problems I cant test consumer GPUs like the the RTX 3090, 4090, 5090 and the 6000 Pro.</p>
+				<p>For non-premium GPUs or other that are not in the list I would be happy to add them if you upload your results as a github issue or pull request.</p>
+				<br>
+				<p>The benchmark is not perfect and there are anomalies in testing results, so please if you have suggestions on how to make it better, feel free to suggest, but don't expect immediate results, because it takes significant resources ($) and time to re-run.</p>
+			</div>
+		</div>
+	</div>
+		</div>
+	</div>
+
+
+	<script>
+	(function(){
+		var fab = document.getElementById('infoFab');
+		var modal = document.getElementById('infoModal');
+		var closeBtn = document.getElementById('infoClose');
+		var backdrop = document.getElementById('infoBackdrop');
+		function openModal(){ modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; closeBtn && closeBtn.focus(); }
+		function closeModal(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; fab && fab.focus(); }
+		fab && fab.addEventListener('click', openModal);
+		closeBtn && closeBtn.addEventListener('click', closeModal);
+		backdrop && backdrop.addEventListener('click', closeModal);
+		document.addEventListener('keydown', function(e){ if(e.key==='Escape' && modal.classList.contains('show')) closeModal(); });
+	})();
+	</script>
+
 </body>
 
 </html>
