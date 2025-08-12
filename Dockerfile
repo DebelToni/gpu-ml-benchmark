@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY ai_bench_fp4.cu /app/
+COPY ai_bench.cu /app/
 RUN nvcc -O3 -std=c++17 /app/ai_bench.cu -lcublas -o /usr/local/bin/ai_bench
 
 RUN mkdir -p /logs

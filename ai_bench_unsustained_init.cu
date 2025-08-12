@@ -1,4 +1,3 @@
-// ai_bench_fp4.cu
 // CUDA 12+. Single file. No CUTLASS.
 // Subtests: FP16 TC GEMM (cuBLAS), fused FP4(weight-only)+FP16 accumulate GEMM kernel, KV-stream bandwidth.
 // Dynamic mix: at least 50% of GEMMs use FP4; increases toward FP4 on compute-strong GPUs.

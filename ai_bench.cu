@@ -1,5 +1,5 @@
-// ai_bench_sustained.cu  (long-run, rotating weights)
-// CUDA 12+. Builds with: nvcc -O3 -std=c++17 ai_bench_fp4.cu -lcublas -o ai_bench_fp4
+// ai_bench.cu  (long-run, rotating weights)
+// CUDA 12+. Builds with: nvcc -O3 -std=c++17 ai_bench.cu -lcublas -o ai_bench
 
 #include <cstdio>
 #include <cstdlib>
