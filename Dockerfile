@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 COPY ai_bench_fp4.cu /app/
-RUN nvcc -O3 -std=c++17 /app/ai_bench_fp4.cu -lcublas -o /usr/local/bin/ai_bench_fp4
+RUN nvcc -O3 -std=c++17 /app/ai_bench.cu -lcublas -o /usr/local/bin/ai_bench
 
 RUN mkdir -p /logs
 COPY entrypoint.sh /entrypoint.sh

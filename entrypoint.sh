@@ -5,5 +5,5 @@ ts="$(date -Iseconds | tr ':' '-')"
 log="/logs/ai_bench_${ts}.txt"
 echo "Writing log to $log"
 nvidia-smi || true
-/usr/local/bin/ai_bench_fp4 | tee "$log"
+/usr/local/bin/ai_bench | tee "$log"
 

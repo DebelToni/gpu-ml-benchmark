@@ -7,6 +7,9 @@ Single-binary CUDA benchmark for NVIDIA GPUs. Measures:
 - Training-style score + inference token/s estimates
 
 
+All the params for the benchmark are displayed and can be adusted to match your usecase best.
+
+
 Here are your options for running this benchmark:
 
 ## Run from Docker Hub
